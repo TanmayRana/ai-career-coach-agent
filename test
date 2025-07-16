@@ -1,0 +1,155 @@
+// import { SidebarTrigger } from '@/components/ui/sidebar'
+// import { UserButton } from '@clerk/nextjs'
+// import React from 'react'
+
+// function AppHeader() {
+//     return (
+//         <div className='p-4 shadow-sm flex items-center justify-between w-full '>
+//             <SidebarTrigger />
+//             <div className='flex items-center gap-2'>
+//                 <UserButton />
+//             </div>
+//         </div>
+//     )
+// }
+
+// export default AppHeader
+
+const mockData = {
+  roadmapTitle: "Full Stack Developer Career Path",
+  description:
+    "A comprehensive roadmap to become a skilled full-stack developer, covering both frontend and backend technologies with hands-on projects.",
+  duration: "12-18 months",
+  milestones: [
+    { id: 1, title: "HTML & CSS Fundamentals" },
+    { id: 2, title: "JavaScript Mastery" },
+    { id: 3, title: "React Development" },
+    { id: 4, title: "Node.js & Express" },
+    { id: 5, title: "Database Design" },
+    { id: 6, title: "Full Stack Project" },
+  ],
+  initialNodes: [
+    {
+      id: "1",
+      type: "turbo",
+      position: { x: 100, y: 50 },
+      data: {
+        title: "HTML & CSS Fundamentals",
+        description:
+          "Master the building blocks of web development. Learn semantic HTML, modern CSS layouts, flexbox, and grid systems.",
+        status: "completed",
+        duration: "4-6 weeks",
+        link: "https://developer.mozilla.org/en-US/docs/Learn/HTML",
+      },
+    },
+    {
+      id: "2",
+      type: "turbo",
+      position: { x: 100, y: 300 },
+      data: {
+        title: "JavaScript Mastery",
+        description:
+          "Dive deep into JavaScript fundamentals, ES6+ features, DOM manipulation, and asynchronous programming.",
+        status: "in-progress",
+        duration: "8-10 weeks",
+        link: "https://javascript.info/",
+      },
+    },
+    {
+      id: "3",
+      type: "turbo",
+      position: { x: 100, y: 550 },
+      data: {
+        title: "React Development",
+        description:
+          "Build dynamic user interfaces with React. Learn components, hooks, state management, and modern development patterns.",
+        status: "pending",
+        duration: "6-8 weeks",
+        link: "https://react.dev/",
+      },
+    },
+    {
+      id: "4",
+      type: "turbo",
+      position: { x: 500, y: 100 },
+      data: {
+        title: "Node.js & Express",
+        description:
+          "Learn server-side JavaScript, build RESTful APIs, and handle backend logic with Node.js and Express framework.",
+        status: "pending",
+        duration: "6-8 weeks",
+        link: "https://nodejs.org/",
+      },
+    },
+    {
+      id: "5",
+      type: "turbo",
+      position: { x: 500, y: 350 },
+      data: {
+        title: "Database Design",
+        description:
+          "Master SQL and NoSQL databases. Learn MongoDB, PostgreSQL, data modeling, and database optimization.",
+        status: "pending",
+        duration: "5-7 weeks",
+        link: "https://www.mongodb.com/docs/",
+      },
+    },
+    {
+      id: "6",
+      type: "turbo",
+      position: { x: 300, y: 750 },
+      data: {
+        title: "Full Stack Project",
+        description:
+          "Build a complete web application combining frontend and backend technologies. Deploy to production.",
+        status: "pending",
+        duration: "4-6 weeks",
+        link: "https://github.com/",
+      },
+    },
+  ],
+  initialEdges: [
+    { id: "e1-2", source: "1", target: "2", type: "smoothstep" },
+    { id: "e2-3", source: "2", target: "3", type: "smoothstep" },
+    { id: "e3-4", source: "3", target: "4", type: "smoothstep" },
+    { id: "e3-5", source: "3", target: "5", type: "smoothstep" },
+    { id: "e4-6", source: "4", target: "6", type: "smoothstep" },
+    { id: "e5-6", source: "5", target: "6", type: "smoothstep" },
+  ],
+};
+
+//  { "x": <number>, "y": <number> }
+//  Generate a React flow tree-structured learning roadmap for user input position/ skills the following format: vertical tree structure with meaningful x/y positions to form a flow
+//       Structure should be similar to roadmap.sh layout
+//       Steps should be ordered from fundamentals to advanced
+//       Include branching for different specializations (if applicable)
+//       Each node must have a title, short description, and learning resource link
+//       Use unique IDs for all nodes and edges
+//       make it more specious node position,
+//       Response n JSON format
+//      {
+//   "roadmapTitle": "[Your Roadmap Title Here]",
+//   "description": "[A 3-5 line description summarizing the roadmap's scope and purpose.]",
+//   "duration": "[Estimated duration to complete the roadmap, e.g., '6-12 Months' or 'Ongoing']",
+//   "initialNodes": [
+//     {
+//       "id": "<Unique String ID>",
+//       "type": "turbo", //type turbo only evertime
+//       "position": { "x": <number>, "y": <number> }, //add more space for each node
+//       "data": {
+//         "title": "<Clear and concise step title>",
+//         "description": "<A short, two-line explanation of the step's content and importance.>",
+//         "link": "<A relevant, high-quality URL to a learning resource (e.g., official docs, tutorials).>"
+//       }
+//     }
+//     // ... more nodes
+//   ],
+//   "initialEdges": [
+//     {
+//       "id": "<Unique Edge ID>",
+//       "source": "<Source Node ID>",
+//       "target": "<Target Node ID>"
+//     }
+//     // ... more edges
+//   ]
+// }
