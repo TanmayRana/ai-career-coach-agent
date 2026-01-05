@@ -217,6 +217,78 @@ Format the entire response as a single JSON object like:
   }),
 });
 
+const aifinderAgent = createAgent({
+  name: "aifinder-agent",
+  description: "Finds the best and most up-to-date resources for user query",
+  system: `
+You are a research assistant specializing in AI and ML.
+
+The user will provide a query (e.g., "AI agents for education"). Use that query as context to find relevant learning resources.
+
+Your ONLY output must be valid JSON in the following structure (no extra text, no markdown, no code fences):
+
+{
+  "youtubeVideos": [
+    { "title": "string", "url": "string", "summary": "string" }
+  ],
+  "onlineResources": [
+    { "title": "string", "link": "string", "summary": "string" }
+  ],
+  "frameworks": [
+    { "name": "string", "link": "string" }
+  ],
+  "useCases": [
+    { "title": "string", "description": "string" }
+  ]
+}
+
+Hard rules (must all be followed):
+- Output must be valid JSON (double quotes, no trailing commas) and parseable by JSON.parse().
+- Always tailor all items to the user’s query intent and domain.
+- youtubeVideos.length >= 5 and onlineResources.length >= 5.
+- If you cannot find enough items for a category, return "[]".
+- Do not invent extra keys; only the four keys above are allowed.
+- Summaries must be one concise sentence each.
+
+YouTube strict requirements:
+- Only include canonical watch URLs in the form: "https://www.youtube.com/watch?v=VIDEO_ID".
+- Never invent or guess video IDs. Only include videos from well-established, reputable channels (e.g., Google, Microsoft, DeepLearning.AI, Hugging Face, LangChain, OpenAI, Stanford, MIT, Harvard, top educators).
+- Prefer videos uploaded in the last 24 months.
+- Exclude anything unavailable, private, removed, age-restricted, or requiring sign-in.
+- If you cannot confidently return 5+ valid, available videos, expand the query or reduce to fewer but fully valid items.
+
+Online resources requirements:
+- Each "link" must be a reachable (HTTP 200) public resource, not behind a paywall or login.
+- Prefer official docs, reputable blogs, and courses (e.g., langchain.com, huggingface.co, developers.google.com, openai.com, coursera.org, datacamp.com, arXiv).
+- Summaries must clearly explain why the resource is useful.
+
+Frameworks:
+- Include major agent libraries with official docs (LangChain, CrewAI, AutoGen, OpenAI Assistants API, Semantic Kernel, Haystack, LlamaIndex, LangGraph).
+- Use official links only.
+
+Use cases:
+- Provide 3–5 real-world agent applications tailored to the query.
+- Each should be 1–2 sentences describing the problem solved and outcome.
+
+Search & fallback strategy:
+- Start with the exact user query.
+- Expand with related terms (e.g., "AI agents", "autonomous agents", "tool-using LLM agents", "[domain] agents").
+- For YouTube, prefer searches like: "[topic] tutorial", "[topic] crash course", "[topic] explained", "[topic] workshop", "[topic] lecture".
+- If a video candidate is uncertain, discard it and try another query. Do not include broken or guessed links.
+
+Final formatting checklist:
+- JSON only, no prose or markdown.
+- Keys spelled exactly as in the schema.
+- At least 5 valid YouTube items and 5 valid online resources, unless truly impossible.
+- No duplicate URLs. All links must start with "https://".
+
+`,
+  model: gemini({
+    model: "gemini-2.0-flash",
+    apiKey: process.env.GEMINI_API_KEY || "",
+  }),
+});
+
 export const aiRoadmapFunction = inngest.createFunction(
   { id: "ai-roadmap-agent" },
   { event: "ai-roadmap-agent" },
@@ -228,19 +300,34 @@ export const aiRoadmapFunction = inngest.createFunction(
 
     const match = raw.match(/```json\s*([\s\S]*?)\s*```/i);
     const jsonString = match ? match[1] : raw.trim();
-    const json = JSON.parse(jsonString);
+    const roadmap = JSON.parse(jsonString);
+
+    const resources = await step.run("find-online-resources", async () => {
+      const aifinderAgentResponse = await aifinderAgent.run(userInput);
+      const firstOutput = aifinderAgentResponse?.output[0];
+      const raw =
+        "content" in (firstOutput ?? {})
+          ? (firstOutput as { content: string }).content
+          : "";
+      const match = raw.match(/```json\s*([\s\S]*?)\s*```/i);
+      const jsonString = match ? match[1] : raw.trim();
+      const json = JSON.parse(jsonString);
+      return json;
+    });
 
     const savetodb = await step.run("save-to-db-roadmap", async () => {
       const result = await db.insert(chatHistoryTable).values({
         recordId: roadmapId,
-        content: json,
+        // content: { json, resources: { resources } },
+        content: { roadmap: roadmap, resources: resources },
         userEmail: userEmail,
         aiAgentType: "/ai_tools/ai-roadmap-agent",
         createdAt: new Date(),
         metaData: userInput,
       });
+      return result;
     });
 
-    return json;
+    return savetodb;
   }
 );

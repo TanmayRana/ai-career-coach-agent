@@ -115,6 +115,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
+  Brain,
   Calendar,
   Home,
   Inbox,
@@ -161,14 +162,20 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="p-4">
-          <Image
+          {/* <Image
             src={"./logo.svg"}
             alt="logo"
             width={100}
             height={70}
             className="w-full h-full"
-          />
+          /> */}
           {/* <h2 className='text-sm text-gray-400 text-center'>Build Awesome</h2> */}
+          <div className="flex items-center">
+            <Brain className="h-8 w-8 text-blue-600 mr-2" />
+            <span className="text-xl font-bold text-gray-900">
+              AI Career Coach
+            </span>
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
